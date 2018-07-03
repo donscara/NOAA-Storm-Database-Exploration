@@ -1,0 +1,106 @@
+---
+title: "NOAA Storm Database Exploration"
+author: "Donato Scarano"
+date: "02 luglio 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+# Synopsis
+
+Exploration of the NOAA Storm Database by answering some basic questions about severe weather.
+
+## Data Processing
+
+Read the database
+```{r echo=TRUE}
+data<-read.csv("repdata%2Fdata%2FStormData.csv")
+head(data)
+```
+
+Start exploring the data using summary and str functions. 
+
+Furthermore consult the documentation available here:
+
+National Weather Service Storm Data Documentation: https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf 
+National Climatic Data Center Storm Events FAQ: https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf 
+
+```{r echo=TRUE}
+summary(data)
+str(data)
+```
+
+# Questions
+
+Your data analysis must address the following questions:
+
+# Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+
+Looking at the variables in the database measures of harm are the variables FATALITIES and INJURIES.
+We can start aggregating the data to filter the outcome and make it more tidy and to ease the following step.
+For both FATALITIES and INJURIES we order them and then we filter the top 10 values.
+
+Let us start with the FATALITIES variable:
+
+```{r echo=TRUE}
+harmf<-aggregate(data$FATALITIES~data$EVTYPE, FUN = sum)
+harmf<-harmf[order(harmf$`data$FATALITIES`,decreasing = TRUE),]
+head(harmf)
+harmftop<-harmf[1:10,]
+head(harmftop)
+```
+
+then the INJURIES variable:
+
+```{r echo=TRUE}
+harmj<-aggregate(data$INJURIES~data$EVTYPE, FUN = sum)
+harmj<-harmj[order(harmj$`data$INJURIES`,decreasing = TRUE),]
+head(harmj)
+harmjtop<-harmj[1:10,]
+head(harmjtop)
+```
+
+We draw the graphs for both FATALITIES and INJURIES:
+
+```{r echo=TRUE}
+par(mfrow=c(1,2))
+barplot(harmftop$`data$FATALITIES`,names.arg=harmftop$`data$EVTYPE`,las=3,main = "Fatalities",ylab = "Number of Fatalities")
+barplot(harmjtop$`data$INJURIES`,names.arg=harmjtop$`data$EVTYPE`,las=3, main = "Injuries",ylab = "Number of Injuries")
+```
+
+# Across the United States, which types of events have the greatest economic consequences?
+
+We follow a similar route to the above to explore the economic impact, we consider the two damages variables wich are PROPDMG (Property Damage) and CROPDMG (Crop Damage)
+
+Let us start with the PROPDMG variable:
+
+```{r echo=TRUE}
+propdmg<-aggregate(data$PROPDMG~data$EVTYPE, FUN = sum)
+propdmg<-propdmg[order(propdmg$`data$PROPDMG`,decreasing = TRUE),]
+head(propdmg)
+propdmgtop<-propdmg[1:10,]
+head(propdmgtop)
+```
+
+then the CROPDMG variable:
+
+```{r echo=TRUE}
+cropdmg<-aggregate(data$CROPDMG~data$EVTYPE, FUN = sum)
+cropdmg<-cropdmg[order(cropdmg$`data$CROPDMG`,decreasing = TRUE),]
+head(cropdmg)
+cropdmgtop<-cropdmg[1:10,]
+head(cropdmgtop)
+```
+
+we finally draw the graphs for both variables:
+
+```{r echo=TRUE}
+par(mfrow=c(1,2))
+barplot(propdmgtop$`data$PROPDMG`,names.arg=propdmgtop$`data$EVTYPE`,las=3,main = "Property Damage",ylab = "Number of Property Damages")
+barplot(cropdmgtop$`data$CROPDMG`,names.arg=cropdmgtop$`data$EVTYPE`,las=3, main = "Crop Damage",ylab = "Number of Crop Damage")
+```
+
+##Results
+
+Tornado is the most harmful type of event overshadowing by great lenght all other events. As for economic damage, property damage is strongly caused by Tornados while Hail is the major source of crop damage.
+
